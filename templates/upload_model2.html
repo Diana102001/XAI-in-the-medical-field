@@ -1,0 +1,587 @@
+
+<!-- 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Model</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #007bff;
+            margin-top: 20px;
+        }
+
+        form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .formset-row {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .formset-row input[type="text"] {
+            width: calc(100% - 30px);
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .formset-row button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .formset-row button:hover {
+            background-color: #c82333;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #source-type-container {
+            margin-bottom: 20px;
+        }
+
+        #source-type-container label {
+            margin-right: 15px;
+        }
+
+        #add-input-form, #add-output-form {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        #add-input-form:hover, #add-output-form:hover {
+            background-color: #0056b3;
+        }
+
+        #labels-container input {
+            display: block;
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .formset-row {
+            display: flex;
+            align-items: center;
+        }
+
+        .formset-row input {
+            margin-right: 10px;
+        }
+
+        .formset-row button.delete-form {
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload AI Model</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <h2>Source Type</h2>
+        <div id="source-type-container">
+            {{ form.source_type }}
+        </div>
+
+        <div id="code-text-container" class="hidden">
+            <h2>Enter Code</h2>
+            {{ form.code_snippet }}
+        </div>
+
+        <div id="file-container" class="hidden">
+            <h2>Upload File</h2>
+            {{ form.file }}
+        </div>
+
+        <h2>Labels</h2>
+        <div id="labels-container"></div>
+
+        <h2>Input Fields</h2>
+        <div id="input-formset">
+            {{ input_formset.management_form }}
+            {% for form in input_formset %}
+                <div class="formset-row">
+                    {{ form.as_p }}
+                    <button type="button" class="delete-form">Remove</button>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-input-form">Add Input Field</button>
+
+        <h2>Output Fields</h2>
+        <div id="output-formset">
+            {{ output_formset.management_form }}
+            {% for form in output_formset %}
+                <div class="formset-row">
+                    {{ form.as_p }}
+                    <button type="button" class="delete-form">Remove</button>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-output-form">Add Output Field</button>
+
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sourceTypeField = document.querySelector('input[name="source_type"]');
+            const codeTextContainer = document.getElementById('code-text-container');
+            const fileContainer = document.getElementById('file-container');
+
+            function updateVisibility() {
+                const sourceType = document.querySelector('input[name="source_type"]:checked').value;
+
+                if (sourceType === 'code') {
+                    codeTextContainer.classList.remove('hidden');
+                    fileContainer.classList.add('hidden');
+                } else if (sourceType === 'file') {
+                    codeTextContainer.classList.add('hidden');
+                    fileContainer.classList.remove('hidden');
+                }
+            }
+
+            // Initialize visibility on page load
+            if (document.querySelector('input[name="source_type"]:checked')) {
+                updateVisibility();
+            }
+
+            // Update visibility when source type changes
+            document.querySelectorAll('input[name="source_type"]').forEach(function(input) {
+                input.addEventListener('change', updateVisibility);
+            });
+
+            function updateLabelFields() {
+                const numLabelsField = document.querySelector('#id_num_labels');
+                const numLabels = parseInt(numLabelsField.value, 10);
+                const labelsContainer = document.getElementById('labels-container');
+                labelsContainer.innerHTML = ''; // Clear existing labels
+
+                for (let i = 0; i < numLabels; i++) {
+                    const labelInput = document.createElement('input');
+                    labelInput.type = 'text';
+                    labelInput.name = `label_${i}`;
+                    labelInput.placeholder = `Label ${i + 1}`;
+                    labelsContainer.appendChild(labelInput);
+
+                    const labelBr = document.createElement('br');
+                    labelsContainer.appendChild(labelBr);
+                }
+            }
+
+            // Initial update on page load
+            updateLabelFields();
+
+            // Update label fields when the number of labels changes
+            document.querySelector('#id_num_labels').addEventListener('input', updateLabelFields);
+
+            // Initialize counters from formset management forms
+            let inputFormCount = parseInt(document.querySelector('#id_input-TOTAL_FORMS').value);
+            let outputFormCount = parseInt(document.querySelector('#id_output-TOTAL_FORMS').value);
+
+            function addForm(formsetId, formPrefix, totalFormsId) {
+                const formset = document.getElementById(formsetId);
+                const totalForms = document.querySelector(`#${totalFormsId}`);
+                const formIdx = totalForms.value;
+
+                // Clone the first form in the formset and update the index
+                const formTemplate = formset.querySelector('.formset-row');
+                const newFormHtml = formTemplate.outerHTML.replace(/__prefix__/g, formIdx);
+                
+                // Increment the total number of forms
+                totalForms.value = parseInt(formIdx) + 1;
+
+                // Insert the new form into the formset
+                formset.insertAdjacentHTML('beforeend', newFormHtml);
+            }
+
+            function deleteForm(event, formPrefix, totalFormsId) {
+                const formsetRow = event.target.closest('.formset-row');
+                const formset = formsetRow.parentElement;
+                const totalForms = document.querySelector(`#${totalFormsId}`);
+                
+                // Mark the form for deletion
+                formsetRow.querySelector(`input[name$="-DELETE"]`).value = 'on';
+                formsetRow.style.display = 'none';
+
+                // Decrement the total number of forms
+                totalForms.value = parseInt(totalForms.value) - 1;
+            }
+
+            document.getElementById('add-input-form').addEventListener('click', function() {
+                addForm('input-formset', 'input', 'id_input-TOTAL_FORMS');
+            });
+
+            document.getElementById('add-output-form').addEventListener('click', function() {
+                addForm('output-formset', 'output', 'id_output-TOTAL_FORMS');
+            });
+
+            document.body.addEventListener('click', function(e) {
+                if (e.target.classList.contains('delete-form')) {
+                    const formsetId = e.target.closest('div[id$="-formset"]').id;
+                    const formPrefix = formsetId === 'input-formset' ? 'input' : 'output';
+                    const totalFormsId = `id_${formPrefix}-TOTAL_FORMS`;
+                    deleteForm(e, formPrefix, totalFormsId);
+                }
+            });
+        });
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Model</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h1, h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #007bff;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .formset-row {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            gap: 10px;
+        }
+
+        .formset-row label {
+            color: #333;
+        }
+
+        .formset-row input[type="text"],
+        .formset-row select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .formset-row button {
+            align-self: flex-end;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .formset-row button:hover {
+            background-color: #c82333;
+        }
+
+        #add-input-form, #add-output-form {
+            display: block;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%; /* Make button full width */
+        }
+
+        #add-input-form:hover, #add-output-form:hover {
+            background-color: #0056b3;
+        }
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            width: 100%; /* Make button full width */
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Upload AI Model</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <h2>Name</h2>
+            {{ form.name }}
+        </div>
+
+        <div class="form-group">
+            <h2>Dataset</h2>
+            {{ form.dataset }}
+        </div>
+
+        <div class="form-group">
+            <h2>Flavor</h2>
+            {{ form.flavor }}
+        </div>
+
+        <div class="form-group">
+            <h2>Classification Type</h2>
+            {{ form.classification_type }}
+        </div>
+
+        <div class="form-group">
+            <h2>Labels</h2>
+            <h3>Number of Labels</h3>
+            {{ form.num_labels }}
+            <h3>Minimum Number of Labels</h3>
+            {{ form.min_labels }}
+            <h3>Maximum Number of Labels</h3>
+            {{ form.max_labels }}
+            <h3>Labels Names</h3>
+            <div id="labels-container"></div>    
+        </div>
+
+        <div class="form-group">
+            <h2>Source Type</h2>
+            {{ form.source_type }}
+        </div>
+
+        <div id="code-text-container" class="form-group hidden">
+            <h2>Enter Code</h2>
+            {{ form.code_snippet }}
+        </div>
+
+        <div id="file-container" class="form-group hidden">
+            <h2>Upload File</h2>
+            {{ form.file }}
+        </div>
+
+        <div class="form-group">
+            <h2>Input Fields</h2>
+            <div id="input-formset">
+                {{ input_formset.management_form }}
+                {% for form in input_formset %}
+                    <div class="formset-row">
+                        {{ form.as_p }}
+                        <button type="button" class="delete-form">Remove</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" id="add-input-form">Add Input Field</button>
+        </div>
+
+        <div class="form-group">
+            <h2>Output Fields</h2>
+            <div id="output-formset">
+                {{ output_formset.management_form }}
+                {% for form in output_formset %}
+                    <div class="formset-row">
+                        {{ form.as_p }}
+                        <button type="button" class="delete-form">Remove</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" id="add-output-form">Add Output Field</button>
+        </div>
+
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sourceTypeInputs = document.querySelectorAll('input[name="source_type"]');
+            const codeTextContainer = document.getElementById('code-text-container');
+            const fileContainer = document.getElementById('file-container');
+
+            function updateVisibility() {
+                const sourceType = document.querySelector('input[name="source_type"]:checked').value;
+
+                if (sourceType === 'code') {
+                    codeTextContainer.classList.remove('hidden');
+                    fileContainer.classList.add('hidden');
+                } else if (sourceType === 'file') {
+                    codeTextContainer.classList.add('hidden');
+                    fileContainer.classList.remove('hidden');
+                }
+            }
+
+            if (document.querySelector('input[name="source_type"]:checked')) {
+                updateVisibility();
+            }
+
+            sourceTypeInputs.forEach(function(input) {
+                input.addEventListener('change', updateVisibility);
+            });
+
+            function updateLabelFields() {
+                const numLabelsField = document.querySelector('#id_num_labels');
+                const numLabels = parseInt(numLabelsField.value, 10);
+                const labelsContainer = document.getElementById('labels-container');
+                labelsContainer.innerHTML = ''; 
+
+                for (let i = 0; i < numLabels; i++) {
+                    const labelInput = document.createElement('input');
+                    labelInput.type = 'text';
+                    labelInput.name = `label_${i}`;
+                    labelInput.placeholder = `Label ${i + 1}`;
+                    labelsContainer.appendChild(labelInput);
+                }
+            }
+
+            updateLabelFields();
+
+            document.querySelector('#id_num_labels').addEventListener('input', updateLabelFields);
+
+            function addForm(formsetId, formPrefix, totalFormsId) {
+                const formset = document.getElementById(formsetId);
+                const totalForms = document.querySelector(`#${totalFormsId}`);
+                const formIdx = totalForms.value;
+
+                const formTemplate = formset.querySelector('.formset-row');
+                const newFormHtml = formTemplate.outerHTML.replace(/__prefix__/g, formIdx);
+                
+                totalForms.value = parseInt(formIdx) + 1;
+
+                formset.insertAdjacentHTML('beforeend', newFormHtml);
+            }
+
+            function deleteForm(event, formPrefix, totalFormsId) {
+                const formsetRow = event.target.closest('.formset-row');
+                const formset = formsetRow.parentElement;
+                const totalForms = document.querySelector(`#${totalFormsId}`);
+
+                formset.removeChild(formsetRow);
+
+                const forms = formset.querySelectorAll('.formset-row');
+                totalForms.value = forms.length;
+            }
+
+            document.getElementById('add-input-form').addEventListener('click', function() {
+                addForm('input-formset', 'input', 'id_input-TOTAL_FORMS');
+            });
+
+            document.getElementById('add-output-form').addEventListener('click', function() {
+                addForm('output-formset', 'output', 'id_output-TOTAL_FORMS');
+            });
+
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('delete-form')) {
+                    const formsetId = event.target.closest('.formset-row').parentElement.id;
+                    if (formsetId === 'input-formset') {
+                        deleteForm(event, 'input', 'id_input-TOTAL_FORMS');
+                    } else if (formsetId === 'output-formset') {
+                        deleteForm(event, 'output', 'id_output-TOTAL_FORMS');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

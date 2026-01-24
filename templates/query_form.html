@@ -1,0 +1,28 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<div>
+    <form method="post" id="queryForm" action="">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Submit"/>
+    </form>
+</div>
+<div id="dynamicFormContainer"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#id_version_number').change(function() {
+            var versionId = $(this).val();
+            if (versionId) {
+                $.get('/get_dynamic_form/' + versionId + '/', function(data) {
+                    $('#dynamicFormContainer').html(data.form_html);
+                });
+            } else {
+                $('#dynamicFormContainer').html('');
+            }
+        });
+    });
+</script>
+{% endblock %}

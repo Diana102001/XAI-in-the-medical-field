@@ -1,0 +1,103 @@
+
+<!-- upload.html -->
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Model</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Upload Model</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <h2>Input Fields</h2>
+        <div id="formset-container">
+            {{ formset.management_form }}
+            {% for form in formset %}
+                <div class="formset-form">
+                    {{ form.as_p }}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <button type="button" id="add-form">Add Field</button>
+        
+        <button type="submit">Upload</button>
+    </form>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var form_idx = $('#id_form-TOTAL_FORMS').val();
+            $('#add-form').click(function() {
+                var formHtml = $('#empty-form').html().replace(/__prefix__/g, form_idx);
+                $('#formset-container').append(formHtml);
+                form_idx++;
+                $('#id_form-TOTAL_FORMS').val(form_idx);
+            });
+        });
+    </script>
+
+    <template id="empty-form">
+        <div class="formset-form">
+            {{ formset.empty_form.as_p|safe }}
+        </div>
+    </template>
+</body>
+</html> -->
+
+<!-- upload.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Model</title>
+    <!-- Include any necessary CSS files or stylesheets -->
+</head>
+<body>
+    <h2>Upload Model</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <h3>Input Fields</h3>
+        {{ formset.management_form }}
+        <div id="input-formset">
+            {% for form in formset %}
+                {{ form.as_p }}
+            {% endfor %}
+        </div>
+        <button type="button" id="add-input">Add Input Field</button>
+        
+        <h3>Output Fields</h3>
+        {{ outputformset.management_form }}
+        <div id="output-formset">
+            {% for form in outputformset %}
+                {{ form.as_p }}
+            {% endfor %}
+        </div>
+        <button type="button" id="add-output">Add Output Field</button>
+        
+        <button type="submit">Upload Model</button>
+    </form>
+    
+    <!-- Include any necessary JavaScript files for dynamic formset handling -->
+    <script>
+        // JavaScript code for adding input and output form fields dynamically
+        // Example:
+        // $(document).ready(function() {
+        //     $('#add-input').click(function() {
+        //         var inputForm = '<input type="text" name="input_field">';
+        //         $('#input-formset').append(inputForm);
+        //     });
+        //
+        //     $('#add-output').click(function() {
+        //         var outputForm = '<input type="text" name="output_field">';
+        //         $('#output-formset').append(outputForm);
+        //     });
+        // });
+    </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Model Details</title>
+</head>
+<body>
+    <h1>Model: {{ model.name }}</h1>
+    
+    <h2>Queries</h2>
+    <ul>
+        {% for query in queries %}
+            <li>
+                Query Input: {{ query.query_input }}<br>
+                Query Output: {{ query.query_output }}<br>
+                Created At: {{ query.created_at }}<br>
+                Updated At: {{ query.updated_at }}
+            </li>
+        {% empty %}
+            <li>No queries found.</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Feedback</h2>
+    <ul>
+        {% for feedback in feedbacks %}
+            <li>
+                Star Rating: {{ feedback.get_star_rating_display }}<br>
+                Feedback: {{ feedback.text_feedback }}<br>
+                Created At: {{ feedback.created_at }}
+            </li>
+        {% empty %}
+            <li>No feedback found.</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Explanations</h2>
+    <ul>
+        {% for explanation in explanations %}
+            <li>
+                Explanation Algorithm: {{ explanation.explainaing_algo }}<br>
+                Explanation Type: {{ explanation.explanation_type }}<br>
+                Explanation Input: {{ explanation.explain_input }}<br>
+                Explanation Output: {{ explanation.explain_output }}<br>
+                Rate: {% if explanation.rate %} Like {% else %} Dislike {% endif %}<br>
+                Created At: {{ explanation.created_at }}
+            </li>
+        {% empty %}
+            <li>No explanations found.</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Explanation Statistics</h2>
+    <ul>
+        {% for stat in explanation_stats %}
+            <li>
+                Explanation Type: {{ stat.explanation_type }}<br>
+                Number of Likes: {{ stat.num_likes }}<br>
+                Number of Dislikes: {{ stat.num_dislikes }}
+            </li>
+        {% empty %}
+            <li>No explanation statistics found.</li>
+        {% endfor %}
+    </ul>
+    
+</body>
+</html>

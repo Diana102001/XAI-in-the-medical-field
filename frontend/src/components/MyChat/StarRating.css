@@ -1,0 +1,12 @@
+/* StarRating.css */
+.star {
+    font-size: 24px;
+    cursor: pointer;
+    color: #ccc;
+    margin-right: 5px;
+  }
+  
+  .star.selected {
+    color: gold;
+  }
+  

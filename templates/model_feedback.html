@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>model performance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+            margin: 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .feedback-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fafafa;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .feedback-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
+        }
+
+        .feedback-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .feedback-item:last-child {
+            border-bottom: none;
+        }
+
+        .feedback-details {
+            display: none;
+            margin-top: 10px;
+            padding-left: 15px;
+            border-left: 3px solid #007bff;
+            background-color: #f1f9ff;
+            border-radius: 4px;
+        }
+
+        .show-details {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+            transition: color 0.3s;
+        }
+
+        .show-details:hover {
+            color: #0056b3;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            padding: 5px 0;
+        }
+
+        strong {
+            color: #333;
+        }
+
+        .rating-container {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .rating-number {
+            font-size: 1.2em;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .stars-outer {
+            position: relative;
+            display: inline-block;
+            font-family: FontAwesome;
+        }
+
+        .stars-outer::before {
+            content: "\f005 \f005 \f005 \f005 \f005";
+            font-family: FontAwesome;
+            color: #ddd;
+        }
+
+        .stars-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            color: #f8ce0b;
+        }
+
+        .stars-inner::before {
+            content: "\f005 \f005 \f005 \f005 \f005";
+            font-family: FontAwesome;
+        }
+
+        .explainer-ratings {
+            margin-top: 10px;
+            padding-left: 15px;
+            border-left: 3px solid #28a745;
+            background-color: #e9f7ef;
+            border-radius: 4px;
+        }
+
+        .explainer-rating-item {
+            margin-top: 5px;
+            padding: 5px 0;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+    <script>
+        function toggleDetails(id) {
+            var details = document.getElementById(id);
+            if (details.style.display === "none") {
+                details.style.display = "block";
+            } else {
+                details.style.display = "none";
+            }
+        }
+
+        function calculateStarWidth(rating) {
+            const starPercentage = (rating / 5) * 100;
+            return Math.round(starPercentage / 10) * 10 + '%';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const ratings = document.querySelectorAll('.stars-inner');
+            ratings.forEach(function(starContainer) {
+                const rating = starContainer.dataset.rating;
+                starContainer.style.width = calculateStarWidth(rating);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>whatch the {{ model.name }} model performance</h1>
+        {% if image_base64 %}
+            <img src="data:image/png;base64,{{ image_base64 }}" alt="Feedback Ratings Over Time">
+        {% else %}
+            <p>No data available to plot.</p>
+        {% endif %}
+
+        <h2>Here is the feedback on your model</h2>
+        <div class="feedback-list">
+            {% for feedback in feedback_details %}
+                <div class="feedback-item">
+                    <strong>Date:</strong> {{ feedback.created_at|date:"Y-m-d H:i" }}<br>
+                    <div class="rating-container">
+                        <div class="rating-number">{{ feedback.average_rating }}</div>
+                        <div class="stars-outer">
+                            <div class="stars-inner" data-rating="{{ feedback.average_rating }}"></div>
+                        </div>
+                    </div>
+                    <strong>Text Feedback:</strong> {{ feedback.text_feedback }}<br>
+                    <a class="show-details" onclick="toggleDetails('details-{{ forloop.counter }}')">» Show Details</a>
+                    
+                    <div class="feedback-details" id="details-{{ forloop.counter }}">
+                        <ul>
+                            {% for question, rating in feedback.star_ratings.items %}
+                                <li><strong>{{ question }}:</strong> {{ rating }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="explainer-ratings">
+                        <strong>Explanation Ratings:</strong>
+                        {% for explainer, avg_rating in feedback.explainer_avg_ratings.items %}
+                            <div class="explainer-rating-item">
+                                <strong>{{ explainer }}:</strong>
+                                <div class="rating-number">{{ avg_rating }}</div>
+                                <div class="stars-outer">
+                                    <div class="stars-inner" data-rating="{{ avg_rating }}"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

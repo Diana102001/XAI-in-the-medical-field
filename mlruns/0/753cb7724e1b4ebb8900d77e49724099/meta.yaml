@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/0/753cb7724e1b4ebb8900d77e49724099/artifacts
+end_time: 1719857681254
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 753cb7724e1b4ebb8900d77e49724099
+run_name: enchanting-perch-902
+run_uuid: 753cb7724e1b4ebb8900d77e49724099
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1719857679507
+status: 4
+tags: []
+user_id: scc

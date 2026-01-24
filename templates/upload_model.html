@@ -1,0 +1,391 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <div id="label_names_container"></div> <!-- Ensure this div is present -->
+
+    <h3>Input Fields</h3>
+    <div id="input-fields">
+        <div class="input-field" id="input-field-template">
+            {{ input_field_form.as_p }}
+        </div>
+    </div>
+    <button type="button" onclick="addInputField()">Add Input Field</button>
+
+    <h3>Output Fields</h3>
+    <div id="output-fields">
+        <div class="output-field" id="output-field-template">
+            {{ output_field_form.as_p }}
+        </div>
+    </div>
+    <button type="button" onclick="addOutputField()">Add Output Field</button>
+
+    <h3>Model Source</h3>
+    <input type="radio" name="model_source" value="code" id="code" required>
+    <label for="code">Code Snippet</label>
+    <textarea name="code_snippet" id="code_snippet" rows="10" cols="30"></textarea>
+
+    <input type="radio" name="model_source" value="file" id="file" required>
+    <label for="file">File</label>
+    <input type="file" name="model_file" id="model_file">
+
+    <button type="submit">Submit</button>
+</form>
+
+
+<script>
+function addInputField() {
+    inputFieldCount++;
+    const template = document.getElementById('input-field-template').cloneNode(true);
+    template.style.display = 'block';
+    template.id = ''; // Remove the ID to avoid duplicate IDs
+
+    template.querySelectorAll('input, select').forEach(input => {
+        let newName = input.name.replace(/input_\d+/, `input_${inputFieldCount}`);
+        let newId = input.id.replace(/input_\d+/, `input_${inputFieldCount}`);
+        input.name = newName;
+        input.id = newId;
+
+        console.log(`Adding input field with name: ${newName} and id: ${newId}`);
+
+        if (input.type === 'checkbox') {
+            input.checked = false;
+        } else {
+            input.value = '';
+        }
+    });
+
+    document.getElementById('input-fields').appendChild(template);
+}
+
+function addOutputField() {
+    outputFieldCount++;
+    const template = document.getElementById('output-field-template').cloneNode(true);
+    template.style.display = 'block';
+    template.id = ''; // Remove the ID to avoid duplicate IDs
+
+    template.querySelectorAll('input, select').forEach(input => {
+        let newName = input.name.replace(/output_\d+/, `output_${outputFieldCount}`);
+        let newId = input.id.replace(/output_\d+/, `output_${outputFieldCount}`);
+        input.name = newName;
+        input.id = newId;
+
+        console.log(`Adding output field with name: ${newName} and id: ${newId}`);
+
+        if (input.type === 'checkbox') {
+            input.checked = false;
+        } else {
+            input.value = '';
+        }
+    });
+
+    document.getElementById('output-fields').appendChild(template);
+}
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const classificationTypeField = document.getElementById('classification_type');
+        const numLabelsField = document.getElementById('num_labels');
+        const minLabelsField = document.getElementById('min_labels');
+        const maxLabelsField = document.getElementById('max_labels');
+        const labelNamesContainer = document.getElementById('label_names_container');
+
+        function updateForm() {
+            const classificationType = classificationTypeField.value;
+            labelNamesContainer.innerHTML = '';
+            numLabelsField.disabled = false;
+            minLabelsField.disabled = false;
+            maxLabelsField.disabled = false;
+
+            if (classificationType === 'multilabel') {
+                numLabelsField.addEventListener('input', updateLabelFields);
+                minLabelsField.disabled = false;
+                maxLabelsField.disabled = false;
+            } else if (classificationType === 'multiclass') {
+                numLabelsField.addEventListener('input', updateLabelFields);
+                minLabelsField.value = 1;
+                minLabelsField.disabled = true;
+                maxLabelsField.value = 1;
+                maxLabelsField.disabled = true;
+            } else if (classificationType === 'binary') {
+                numLabelsField.value = 2;
+                numLabelsField.disabled = true;
+                minLabelsField.value = 1;
+                minLabelsField.disabled = true;
+                maxLabelsField.value = 1;
+                maxLabelsField.disabled = true;
+                updateLabelFields();
+            }
+        }
+
+        function updateLabelFields() {
+            const classificationType = classificationTypeField.value;
+            const numLabels = parseInt(numLabelsField.value, 10); // Ensure integer value
+
+            labelNamesContainer.innerHTML = '';
+
+            if (!isNaN(numLabels)) {
+                for (let i = 0; i < numLabels; i++) {
+                    const labelInput = document.createElement('input');
+                    labelInput.type = 'text';
+                    labelInput.name = `label_name_${i}`;
+                    labelInput.placeholder = `Label ${i + 1} Name`;
+                    labelNamesContainer.appendChild(labelInput);
+                }
+            }
+        }
+
+        classificationTypeField.addEventListener('change', updateForm);
+        numLabelsField.addEventListener('input', updateLabelFields);
+        updateForm();
+    });
+</script>
+
+
+
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic Form</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const classificationTypeField = document.getElementById('classification_type');
+            const numLabelsField = document.getElementById('num_labels');
+            const minLabelsField = document.getElementById('min_labels');
+            const maxLabelsField = document.getElementById('max_labels');
+            const labelNamesContainer = document.getElementById('label_names_container');
+
+            function updateForm() {
+                const classificationType = classificationTypeField.value;
+                labelNamesContainer.innerHTML = '';
+                numLabelsField.disabled = false;
+
+                if (classificationType === 'multilabel') {
+                    numLabelsField.addEventListener('input', updateLabelFields);
+                    minLabelsField.disabled = false;
+                    maxLabelsField.disabled = false;
+                } else if (classificationType === 'multiclass') {
+                    numLabelsField.addEventListener('input', updateLabelFields);
+                    minLabelsField.value = 1;
+                    minLabelsField.disabled = true;
+                    maxLabelsField.value = 1;
+                    maxLabelsField.disabled = true;
+                } else if (classificationType === 'binary') {
+                    numLabelsField.value = 2;
+                    numLabelsField.disabled = true;
+                    minLabelsField.value = 1;
+                    minLabelsField.disabled = true;
+                    maxLabelsField.value = 1;
+                    maxLabelsField.disabled = true;
+                    updateLabelFields();
+                }
+            }
+
+            function updateLabelFields() {
+                const classificationType = classificationTypeField.value;
+                const numLabels = parseInt(numLabelsField.value);
+
+                // if (classificationType !== 'multilabel' && classificationType !== 'multiclass') {
+                //     return;
+                // }
+
+                labelNamesContainer.innerHTML = '';
+
+                if (!isNaN(numLabels)) {
+                    for (let i = 0; i < numLabels; i++) {
+                        const labelInput = document.createElement('input');
+                        labelInput.type = 'text';
+                        labelInput.name = `label_name_${i}`;
+                        labelInput.placeholder = `Label ${i + 1} Name`;
+                        labelNamesContainer.appendChild(labelInput);
+                    }
+                }
+            }
+
+            classificationTypeField.addEventListener('change', updateForm);
+            numLabelsField.addEventListener('input', updateLabelFields);
+            updateForm();
+        });
+    </script>
+</head>
+<body>
+    <form method="post">
+        <div>
+            <label for="classification_type">Classification Type:</label>
+            <select id="classification_type" name="classification_type">
+                <option value="binary">Binary</option>
+                <option value="multiclass">Multiclass</option>
+                <option value="multilabel">Multilabel</option>
+            </select>
+        </div>
+        <div>
+            <label for="num_labels">Number of Labels:</label>
+            <input type="number" id="num_labels" name="num_labels" min="1">
+        </div>
+        <div>
+            <label for="min_labels">Minimum Labels:</label>
+            <input type="number" id="min_labels" name="min_labels" min="1">
+        </div>
+        <div>
+            <label for="max_labels">Maximum Labels:</label>
+            <input type="number" id="max_labels" name="max_labels" min="1">
+        </div>
+        <div id="label_names_container"></div>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic Form</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+        .input-field, .output-field {
+            margin-bottom: 10px;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const classificationTypeField = document.getElementById('classification_type');
+            const numLabelsField = document.getElementById('num_labels');
+            const minLabelsField = document.getElementById('min_labels');
+            const maxLabelsField = document.getElementById('max_labels');
+            const labelNamesContainer = document.getElementById('label_names_container');
+            
+            let inputFieldCount = 1;
+            let outputFieldCount = 1;
+
+            function updateForm() {
+                const classificationType = classificationTypeField.value;
+                labelNamesContainer.innerHTML = '';
+                numLabelsField.disabled = false;
+
+                if (classificationType === 'multilabel') {
+                    numLabelsField.addEventListener('input', updateLabelFields);
+                    minLabelsField.disabled = false;
+                    maxLabelsField.disabled = false;
+                } else if (classificationType === 'multiclass') {
+                    numLabelsField.addEventListener('input', updateLabelFields);
+                    minLabelsField.value = 1;
+                    minLabelsField.disabled = true;
+                    maxLabelsField.value = 1;
+                    maxLabelsField.disabled = true;
+                } else if (classificationType === 'binary') {
+                    numLabelsField.value = 2;
+                    numLabelsField.disabled = true;
+                    minLabelsField.value = 1;
+                    minLabelsField.disabled = true;
+                    maxLabelsField.value = 1;
+                    maxLabelsField.disabled = true;
+                    updateLabelFields();
+                }
+            }
+
+            function updateLabelFields() {
+                const classificationType = classificationTypeField.value;
+                const numLabels = parseInt(numLabelsField.value);
+                
+                labelNamesContainer.innerHTML = '';
+
+                if (!isNaN(numLabels)) {
+                    for (let i = 0; i < numLabels; i++) {
+                        const labelInput = document.createElement('input');
+                        labelInput.type = 'text';
+                        labelInput.name = `label_name_${i}`;
+                        labelInput.placeholder = `Label ${i + 1} Name`;
+                        labelNamesContainer.appendChild(labelInput);
+                    }
+                }
+            }
+
+            function addInputField() {
+                const newInputField = document.querySelector('#input-field-template').cloneNode(true);
+                newInputField.classList.remove('hidden');
+                newInputField.querySelectorAll('input, select').forEach(input => {
+                    input.name = input.name.replace('input_0', `input_${inputFieldCount}`);
+                });
+                document.getElementById('input-fields').appendChild(newInputField);
+                inputFieldCount++;
+            }
+
+            function addOutputField() {
+                const newOutputField = document.querySelector('#output-field-template').cloneNode(true);
+                newOutputField.classList.remove('hidden');
+                newOutputField.querySelectorAll('input, select').forEach(input => {
+                    input.name = input.name.replace('output_0', `output_${outputFieldCount}`);
+                });
+                document.getElementById('output-fields').appendChild(newOutputField);
+                outputFieldCount++;
+            }
+
+            classificationTypeField.addEventListener('change', updateForm);
+            numLabelsField.addEventListener('input', updateLabelFields);
+
+            document.getElementById('add_input_field').addEventListener('click', addInputField);
+            document.getElementById('add_output_field').addEventListener('click', addOutputField);
+
+            updateForm();
+        });
+    </script>
+</head>
+<body>
+    <form method="post" enctype="multipart/form-data">
+        <div>
+            <label for="classification_type">Classification Type:</label>
+            <select id="classification_type" name="classification_type">
+                <option value="binary">Binary</option>
+                <option value="multiclass">Multiclass</option>
+                <option value="multilabel">Multilabel</option>
+            </select>
+        </div>
+        <div>
+            <label for="num_labels">Number of Labels:</label>
+            <input type="number" id="num_labels" name="num_labels" min="1">
+        </div>
+        <div>
+            <label for="min_labels">Minimum Labels:</label>
+            <input type="number" id="min_labels" name="min_labels" min="1">
+        </div>
+        <div>
+            <label for="max_labels">Maximum Labels:</label>
+            <input type="number" id="max_labels" name="max_labels" min="1">
+        </div>
+        <div id="label_names_container"></div>
+
+        <h3>Input Fields</h3>
+        <div id="input-fields">
+            <div id="input-field-template" class="input-field hidden">
+                <input type="text" name="input_0" placeholder="Input Field">
+            </div>
+        </div>
+        <button type="button" id="add_input_field">Add Input Field</button>
+
+        <h3>Output Fields</h3>
+        <div id="output-fields">
+            <div id="output-field-template" class="output-field hidden">
+                <input type="text" name="output_0" placeholder="Output Field">
+            </div>
+        </div>
+        <button type="button" id="add_output_field">Add Output Field</button>
+
+        <h3>Model Source</h3>
+        <input type="radio" name="model_source" value="code" id="code" required>
+        <label for="code">Code Snippet</label>
+        <textarea name="code_snippet" id="code_snippet" rows="10" cols="30"></textarea>
+
+        <input type="radio" name="model_source" value="file" id="file" required>
+        <label for="file">File</label>
+        <input type="file" name="model_file" id="model_file">
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html> -->

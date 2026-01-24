@@ -1,0 +1,47 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<div>
+    <h2>Prediction Result</h2>
+    <p>{{ result }}</p>
+    <button id="explainButton">Explain</button>
+    <button id="visualiseButton">Visualize</button>
+    <div id="explanationContainer"></div>
+    <div id="visualizationContainer"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#explainButton').click(function() {
+            var queryId = "{{ query_id }}";
+            console.log("lalal");
+            console.log(queryId);
+            $.ajax({
+                url: "{% url 'explain_query' query_id=0 %}".replace('0', queryId),
+                type: "GET",
+                success: function(response) {
+                    $('#explanationContainer').html('<h3>Explanation</h3><p>' + response.explanation + '</p>');
+                },
+                error: function() {
+                    $('#explanationContainer').html('<p>An error occurred while fetching the explanation.</p>');
+                }
+            });
+        });
+
+        // $('#visualiseButton').click(function() {
+        //     var queryId = "{{ query_id }}";
+        //     $.ajax({
+        //         url : "{% url 'visualise_query' query_id=0 %}".replace('0', queryId),
+        //         type: "GET",
+        //     }) 
+        // });
+        $('#visualiseButton').click(function() {
+            var queryId = "{{ query_id }}";
+            var visualizeUrl = "{% url 'visualise_query' query_id=0 %}".replace('0', queryId);
+            window.open(visualizeUrl, '_blank');
+        });
+    });
+</script>
+
+{% endblock %}

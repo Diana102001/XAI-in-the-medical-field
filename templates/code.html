@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Code Runner</title>
+  </head>
+  <body>
+    <h1>Enter your code below:</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Run Code">
+    </form>
+    <h2>Output:</h2>
+    <pre>{{ output }}</pre>
+  </body>
+</html>

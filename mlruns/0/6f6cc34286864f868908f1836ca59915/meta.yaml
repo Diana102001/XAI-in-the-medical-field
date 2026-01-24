@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/0/6f6cc34286864f868908f1836ca59915/artifacts
+end_time: 1719904852225
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 6f6cc34286864f868908f1836ca59915
+run_name: gifted-fly-151
+run_uuid: 6f6cc34286864f868908f1836ca59915
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1719904839606
+status: 4
+tags: []
+user_id: scc

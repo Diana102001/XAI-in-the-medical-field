@@ -1,0 +1,121 @@
+{% load static %}
+<style>#chatbot-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+#chatlog {
+  height: 300px;
+  overflow-y: scroll;
+  margin-bottom: 10px;
+}
+
+#chatlog p {
+  margin: 0;
+}
+
+#chat-form {
+  display: flex;
+  margin-top: 10px;
+}
+
+#user-input {
+  flex-grow: 1;
+  margin-right: 10px;
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+#chatbot-container button {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+#chatbot-container button:hover {
+  background-color: #0062cc;
+}</style>
+<!DOCTYPE html>
+<html>
+<head>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const chatlog = document.getElementById('chatlog');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+
+    // Function to get the CSRF token from the cookie
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCSRFToken();
+
+    chatForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Get user input
+        const userMessage = userInput.value;
+
+        // Clear the input field
+        userInput.value = '';
+
+        // Add the user message to the chat log
+        chatlog.innerHTML += '<p class="user-message">' + userMessage + '</p>';
+
+        // Send the user message to the server and get the response
+        fetch('/chatbot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                'X-CSRFToken': csrftoken  // Include the CSRF token in the headers
+            },
+            body: 'user_input=' + encodeURIComponent(userMessage)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Add the bot response to the chat log
+            chatlog.innerHTML += '<p class="bot-message">' + data.bot_response + '</p>';
+            // Scroll to the bottom of the chat log
+            chatlog.scrollTop = chatlog.scrollHeight;
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+
+  </script>
+    <title>Chatbot</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'chatbot.css' %}">
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <div id="chatbot-container">
+        <div id="chatlog"></div>
+        <form id="chat-form">
+          {% csrf_token %}
+            <input type="text" id="user-input" placeholder="Say something...">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <script src="{% static 'chatbot.js' %}"></script>
+</body>
+</html>

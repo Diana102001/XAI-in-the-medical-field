@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Model Result</title>
+</head>
+<body>
+    <h1>Model Result</h1>
+    
+    {% if result %}
+        <h2>Result</h2>
+        <pre>{{ result }}</pre>
+    {% endif %}
+    
+    {% if explanation %}
+        <h2>Explanation</h2>
+        <pre>{{ explanation }}</pre>
+    {% else %}
+        {% if result %}
+            <form method="get" action="">
+                <button type="submit" name="explain" value="1">Explain</button>
+            </form>
+        {% endif %}
+    {% endif %}
+    
+    <h2>Input Form</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

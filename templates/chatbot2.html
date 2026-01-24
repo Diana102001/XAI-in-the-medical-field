@@ -1,0 +1,151 @@
+{% load static %}
+<style>#chatbot-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+  }
+  
+  #chatlog {
+    height: 300px;
+    overflow-y: scroll;
+    margin-bottom: 10px;
+  }
+  
+  #chatlog p {
+    margin: 0;
+  }
+  
+  #chat-form {
+    display: flex;
+    margin-top: 10px;
+  }
+  
+  #user-input {
+    flex-grow: 1;
+    margin-right: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  
+  #chatbot-container button {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  #chatbot-container button:hover {
+    background-color: #0062cc;
+  }</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'my_app/chatbot.css' %}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const chatlog = document.getElementById('chatlog');
+    const initialForm = document.getElementById('initial-form');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+
+    // Function to get the CSRF token from the cookie
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCSRFToken();
+
+    // Handle form submission
+    initialForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(initialForm);
+
+        fetch('/chatbot', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            body: new URLSearchParams(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            chatlog.innerHTML += '<p class="bot-message">' + data.bot_response + '</p>';
+            chatlog.scrollTop = chatlog.scrollHeight;
+
+            // Show the regular chat form
+            initialForm.style.display = 'none';
+            chatForm.style.display = 'block';
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Handle regular chat submission
+    chatForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const userMessage = userInput.value;
+        userInput.value = '';
+
+        chatlog.innerHTML += '<p class="user-message">' + userMessage + '</p>';
+
+        fetch('/chatbot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                'X-CSRFToken': csrftoken
+            },
+            body: 'user_input=' + encodeURIComponent(userMessage)
+        })
+        .then(response => response.json())
+        .then(data => {
+            chatlog.innerHTML += '<p class="bot-message">' + data.bot_response + '</p>';
+            chatlog.scrollTop = chatlog.scrollHeight;
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+
+    </script>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <div id="chatbot-container">
+        <div id="chatlog">
+            <!-- Initial form rendered as part of the chat -->
+            <div class="bot-message">
+                <p>Please fill out the following form:</p>
+                <form id="initial-form">
+                    <label for="form_field_1">Field 1:</label>
+                    <input type="text" id="form_field_1" name="form_field_1"><br>
+                    <label for="form_field_2">Field 2:</label>
+                    <input type="text" id="form_field_2" name="form_field_2"><br>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+        <form id="chat-form" style="display:none;">
+            <input type="text" id="user-input" placeholder="Say something...">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <script src="{% static 'my_app/chatbot.js' %}"></script>
+</body>
+</html>

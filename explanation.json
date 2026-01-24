@@ -1,0 +1,221 @@
+{
+    "explanation_type": "local",
+    "_internal_obj": {
+        "overall": null,
+        "specific": [
+            {
+                "type": "tree",
+                "features": [
+                    "feature_0000",
+                    "feature_0001",
+                    "feature_0002",
+                    "feature_0003"
+                ],
+                "nodes": [
+                    {
+                        "data": {
+                            "id": "1",
+                            "label": "feature_0002 <= -0.07\n# Obs: 0, 0",
+                            "feature": "feature_0002"
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "2",
+                            "label": "feature_0002 <= -0.43\n# Obs: 0, 0",
+                            "feature": "feature_0002"
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "3",
+                            "label": "feature_0000 <= -1.81\n# Obs: 0, 0",
+                            "feature": "feature_0000"
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "4",
+                            "label": "Impurity: 0.41\n# Obs: 0, 0",
+                            "feature": null
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "5",
+                            "label": "Impurity: 0.17\n# Obs: 0, 0",
+                            "feature": null
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "6",
+                            "label": "feature_0000 <= -0.63\n# Obs: 0, 0",
+                            "feature": "feature_0000"
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "7",
+                            "label": "Impurity: 0.24\n# Obs: 0, 0",
+                            "feature": null
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "8",
+                            "label": "Impurity: 0.40\n# Obs: 0, 0",
+                            "feature": null
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "9",
+                            "label": "feature_0000 <= -0.09\n# Obs: 0, 0",
+                            "feature": "feature_0000"
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "10",
+                            "label": "feature_0000 <= -0.77\n# Obs: 0, 0",
+                            "feature": "feature_0000"
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "11",
+                            "label": "Impurity: 0.07\n# Obs: 0, 0",
+                            "feature": null
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "12",
+                            "label": "Impurity: 0.50\n# Obs: 0, 0",
+                            "feature": null
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "13",
+                            "label": "feature_0002 <= 0.03\n# Obs: 0, 0",
+                            "feature": "feature_0002"
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "14",
+                            "label": "Impurity: 0.28\n# Obs: 0, 0",
+                            "feature": null
+                        }
+                    },
+                    {
+                        "data": {
+                            "id": "15",
+                            "label": "Impurity: 0.00\n# Obs: 0, 1",
+                            "feature": null
+                        }
+                    }
+                ],
+                "edges": [
+                    {
+                        "data": {
+                            "source": "3",
+                            "target": "4",
+                            "edge_weight": 0.13125
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "3",
+                            "target": "5",
+                            "edge_weight": 6.6
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "6",
+                            "target": "7",
+                            "edge_weight": 0.525
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "6",
+                            "target": "8",
+                            "edge_weight": 0.54375
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "2",
+                            "target": "3",
+                            "edge_weight": 6.731249999999999
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "2",
+                            "target": "6",
+                            "edge_weight": 1.0687499999999999
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "10",
+                            "target": "11",
+                            "edge_weight": 2.00625
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "10",
+                            "target": "12",
+                            "edge_weight": 1.36875
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "13",
+                            "target": "14",
+                            "edge_weight": 0.11249999999999999
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "13",
+                            "target": "15",
+                            "edge_weight": 3.7125
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "9",
+                            "target": "10",
+                            "edge_weight": 3.375
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "9",
+                            "target": "13",
+                            "edge_weight": 3.825
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "1",
+                            "target": "2",
+                            "edge_weight": 7.800000000000001
+                        }
+                    },
+                    {
+                        "data": {
+                            "source": "1",
+                            "target": "9",
+                            "edge_weight": 7.199999999999999
+                        }
+                    }
+                ],
+                "decision": 

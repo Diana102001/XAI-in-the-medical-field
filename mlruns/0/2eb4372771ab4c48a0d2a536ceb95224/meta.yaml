@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/0/2eb4372771ab4c48a0d2a536ceb95224/artifacts
+end_time: 1719850381788
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2eb4372771ab4c48a0d2a536ceb95224
+run_name: victorious-dove-358
+run_uuid: 2eb4372771ab4c48a0d2a536ceb95224
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1719850381311
+status: 4
+tags: []
+user_id: scc

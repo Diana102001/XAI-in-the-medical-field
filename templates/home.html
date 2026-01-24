@@ -1,0 +1,17 @@
+<!-- including sections -->
+{% extends 'main.html'%}
+
+{% block content %}
+<h1>Home template</h1>
+<div>
+    <a href="{% url 'create-aimodel' %}">Create AI model </a>
+    <div>
+
+            {% for aimodel in aimodels %}
+                <div>
+                    <h5>{{aimodel.name}}</h5>
+                </div>
+            {% endfor %}
+    </div>
+</div>
+{% endblock %}

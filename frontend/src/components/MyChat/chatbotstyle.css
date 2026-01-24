@@ -1,0 +1,215 @@
+/* Container for the entire chat */
+.react-chatbot-kit-chat-container {
+  width: 100% !important; /* Make sure it takes up the full width of its parent container */
+  height: 100% !important; /* Full height of its parent container */
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #37474f; /* Blue-grey border to separate from the query list */
+  background-color: #263238; /* Dark blue-grey background color for the chat container */
+}
+
+/* Inner container for chat elements */
+.react-chatbot-kit-chat-inner-container {
+  display: flex;
+  flex-direction: column;
+  height: 100% !important;
+  overflow: hidden; /* Prevent overflow */
+}
+
+/* Chat header styles */
+.react-chatbot-kit-chat-header {
+  background-color: #37474f; /* Blue-grey background color for the header */
+  padding: 10px;
+  border-bottom: 1px solid #546e7a; /* Darker blue-grey border to separate header from messages */
+  flex-shrink: 0; /* Prevent shrinking of the header */
+  display: none !important; /* Hide header if not needed */
+}
+
+/* Message container for displaying messages */
+.react-chatbot-kit-chat-message-container {
+  flex: 1;
+  overflow-y: auto; /* Allows scrolling if messages overflow */
+  padding: 10px;
+  background-color: #455a64; /* Darker blue-grey background color for message area */
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Ensure message container takes full width of the chat */
+}
+
+/* Input container for user messages */
+.react-chatbot-kit-chat-input-container {
+  display: flex;
+  align-items: center;
+  padding: 0px;
+  background-color: #263238; /* Dark blue-grey background color for input area */
+  border-top: 1px solid #37474f; /* Blue-grey border to separate input area from messages */
+  flex-shrink: 0; /* Prevent shrinking of the input container */
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.5); /* Optional: add shadow for input container */
+}
+
+/* Input field for user text */
+.react-chatbot-kit-chat-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #546e7a; /* Blue-grey border for input field */
+  border-radius: 5px;
+  max-height: 40px; /* Ensure input field does not grow too tall */
+  box-sizing: border-box; /* Ensure padding and border are included in total width */
+  background-color: #37474f; /* Blue-grey background for input field */
+  color: #eceff1; /* Light text color */
+}
+
+/* Form container for input */
+.react-chatbot-kit-chat-input-form {
+  display: flex;
+  align-items: center;
+  width: 100%; /* Make sure the form takes full width */
+}
+
+/* Placeholder style for input */
+.react-chatbot-kit-chat-input::placeholder {
+  color: #90a4ae; /* Lighter blue-grey for placeholder text */
+}
+
+/* Button for sending messages */
+.react-chatbot-kit-chat-btn-send {
+  background-color: #042f5c !important; /* Blue background color */
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+/* Send button icon style */
+.react-chatbot-kit-chat-btn-send-icon {
+  font-size: 16px;
+}
+
+/* Container for bot messages */
+.react-chatbot-kit-chat-bot-message-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 10px; 
+  width: 100% !important; /* Bot message takes the full width */
+}
+
+/* Style for bot messages */
+.react-chatbot-kit-chat-bot-message {
+  background-color: #546e7a!important; /* Blue-grey background color for bot messages */
+  padding: 10px;
+  border-radius: 5px;
+  position: relative;
+  width: 100% !important; /* Bot message takes the full width */
+  word-break: break-word; /* Ensure long words break correctly */
+  box-sizing: border-box; /* Include padding and border in the element’s total width and height */
+  color: #eceff1; /* Light text color */
+}
+
+/* Container for user messages */
+.react-chatbot-kit-user-chat-message-container {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  width: auto; /* User message width adjusts to content */
+  max-width: 80%; /* Optionally limit max-width to avoid too long messages */
+  align-self: flex-end; /* Align user messages to the right */
+}
+
+/* Style for user messages */
+.react-chatbot-kit-user-chat-message {
+  background-color: #007bff; /* Blue background color for user messages */
+  padding: 10px;
+  border-radius: 5px;
+  position: relative;
+  width: auto; /* User message width adjusts to content */
+  max-width: 100%; /* Make sure it doesn’t overflow */
+  word-break: break-word; /* Ensure long words break correctly */
+  box-sizing: border-box; /* Include padding and border in the element’s total width and height */
+  color: #fff; /* Light text color */
+}
+
+/* Avatar container for bot messages */
+.react-chatbot-kit-chat-bot-avatar-container {
+  margin-right: 10px;
+}
+
+/* Icon or letter inside bot avatar */
+.react-chatbot-kit-chat-bot-avatar-icon,
+.react-chatbot-kit-chat-bot-avatar-letter {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #007bff; /* Blue background color */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Avatar container for user messages */
+.react-chatbot-kit-user-chat-avatar-container {
+  margin-left: 10px; /* Space between message and avatar */
+}
+
+/* Icon or letter inside user avatar */
+.react-chatbot-kit-user-chat-avatar-icon,
+.react-chatbot-kit-user-chat-avatar-letter {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #28a745; /* Green background color for user avatar */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Loader styles */
+.react-chatbot-kit-chat-bot-loading-icon-container,
+.chatbot-loader-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Loader dot styles */
+#chatbot-loader #chatbot-loader-dot1,
+#chatbot-loader #chatbot-loader-dot2,
+#chatbot-loader #chatbot-loader-dot3 {
+  width: 10px;
+  height: 10px;
+  background-color: #007bff; /* Blue color for the loader dots */
+  border-radius: 50%;
+  margin: 0 5px;
+  animation: dot-blink 1.4s infinite both;
+}
+
+/* Animation for the loader dots */
+@keyframes dot-blink {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Error styles */
+.react-chatbot-kit-error {
+  color: red;
+  padding: 10px;
+}
+
+/* Error container and header styles */
+.react-chatbot-kit-error-container,
+.react-chatbot-kit-error-header {
+  margin-bottom: 10px;
+}
+
+/* Error documentation style */
+.react-chatbot-kit-error-docs {
+  color: #555;
+}
