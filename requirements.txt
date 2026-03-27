@@ -1,0 +1,10 @@
+asgiref==3.8.1
+Django==5.0.4
+sqlparse==0.5.0
+tzdata==2024.1; 
+
+# Optional dependencies for specific model flavors (install only as needed):
+# catboost==1.2.2
+# mlflow==2.7.0
+# torch==2.1.0
+# tensorflow==2.14.1

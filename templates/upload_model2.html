@@ -445,7 +445,12 @@
             <h3>Maximum Number of Labels</h3>
             {{ form.max_labels }}
             <h3>Labels Names</h3>
-            <div id="labels-container"></div>    
+            <div id="labels-container"></div>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button type="button" id="add-label-btn">Add Label</button>
+                <button type="button" id="remove-label-btn">Remove Last Label</button>
+            </div>
+            {{ form.label_names }}
         </div>
 
         <div class="form-group">
@@ -520,10 +525,20 @@
                 input.addEventListener('change', updateVisibility);
             });
 
+            function getCurrentLabelValues() {
+                const inputs = document.querySelectorAll('#labels-container input');
+                return Array.from(inputs).map((input) => input.value.trim()).filter(Boolean);
+            }
+
             function updateLabelFields() {
                 const numLabelsField = document.querySelector('#id_num_labels');
-                const numLabels = parseInt(numLabelsField.value, 10);
+                let numLabels = parseInt(numLabelsField.value, 10);
+                if (isNaN(numLabels) || numLabels < 0) {
+                    numLabels = 0;
+                }
+
                 const labelsContainer = document.getElementById('labels-container');
+                const existingValues = getCurrentLabelValues();
                 labelsContainer.innerHTML = ''; 
 
                 for (let i = 0; i < numLabels; i++) {
@@ -531,13 +546,67 @@
                     labelInput.type = 'text';
                     labelInput.name = `label_${i}`;
                     labelInput.placeholder = `Label ${i + 1}`;
+                    labelInput.value = existingValues[i] || '';
                     labelsContainer.appendChild(labelInput);
                 }
+
+                document.querySelector('#id_label_names').value = JSON.stringify(getCurrentLabelValues());
+            }
+
+            function addLabel() {
+                const numLabelsField = document.querySelector('#id_num_labels');
+                let numLabels = parseInt(numLabelsField.value, 10) || 0;
+                numLabels += 1;
+                numLabelsField.value = numLabels;
+                updateLabelFields();
+            }
+
+            function removeLabel() {
+                const labels = getCurrentLabelValues();
+                if (labels.length <= 0) return;
+                labels.pop();
+                document.querySelector('#id_num_labels').value = labels.length;
+                updateLabelFields();
+            }
+
+            const classificationTypeField = document.querySelector('#id_classification_type');
+
+            function applyClassificationRules() {
+                const classificationType = classificationTypeField ? classificationTypeField.value : null;
+                const numLabelsField = document.querySelector('#id_num_labels');
+
+                if (!numLabelsField) return;
+
+                if (classificationType === 'binary') {
+                    numLabelsField.value = 2;
+                    numLabelsField.readOnly = true;
+                    document.querySelector('#id_min_labels').value = 1;
+                    document.querySelector('#id_max_labels').value = 1;
+                    document.querySelector('#id_min_labels').readOnly = true;
+                    document.querySelector('#id_max_labels').readOnly = true;
+                } else if (classificationType === 'multi_classes') {
+                    numLabelsField.readOnly = false;
+                    document.querySelector('#id_min_labels').value = 1;
+                    document.querySelector('#id_max_labels').value = Math.max(2, parseInt(numLabelsField.value, 10) || 2);
+                    document.querySelector('#id_min_labels').readOnly = false;
+                    document.querySelector('#id_max_labels').readOnly = false;
+                } else if (classificationType === 'multi_labels') {
+                    numLabelsField.readOnly = false;
+                    document.querySelector('#id_min_labels').readOnly = false;
+                    document.querySelector('#id_max_labels').readOnly = false;
+                }
+                updateLabelFields();
+            }
+
+            if (classificationTypeField) {
+                classificationTypeField.addEventListener('change', applyClassificationRules);
             }
 
             updateLabelFields();
 
             document.querySelector('#id_num_labels').addEventListener('input', updateLabelFields);
+            document.getElementById('add-label-btn').addEventListener('click', addLabel);
+            document.getElementById('remove-label-btn').addEventListener('click', removeLabel);
 
             function addForm(formsetId, formPrefix, totalFormsId) {
                 const formset = document.getElementById(formsetId);

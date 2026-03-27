@@ -155,7 +155,7 @@ class DynamicFormAPIView(APIView):
             query = Query(model=model, query_input=image_path, query_output=json_data)
             query.save()
             
-            return Response({'result': result}, status=status.HTTP_200_OK)
+            return Response({'result': tensor_list}, status=status.HTTP_200_OK)
         else:
             return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -504,9 +504,8 @@ def explain_query(request, query_id):
     explainerclass=lime_image
 
     explainer=explainerclass()
-    explanation=explainer.explaine(model,inp,out)
-    result=processExplanation(explanation)  #how on earth we can generlize here :( => (AI model that generates the answer gpt or whatever :) )
-    #json or sth :)
-    return explanation
+    explanation = explainer.explaine(model, inp, out)
+    # TODO: normalize explanation output for clients
+    return Response({'explanation': explanation}, status=status.HTTP_200_OK)
 
 

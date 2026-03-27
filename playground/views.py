@@ -257,7 +257,7 @@ def chatbot(request):
 # upload model
 def upload_model(request):
     if request.method == 'POST':
-        form = AIModelForm(request.POST)
+        form = AIModelForm(request.POST, request.FILES)
         input_formset = InputFieldFormSet(request.POST, prefix='input')
         output_formset = OutputFieldFormSet(request.POST, prefix='output')
 
@@ -265,61 +265,101 @@ def upload_model(request):
             classification_type = form.cleaned_data['classification_type']
             flavor = form.cleaned_data['flavor']
             name = form.cleaned_data['name']
-            num_labels = form.cleaned_data['num_labels']
-            min_labels = form.cleaned_data['min_labels']
-            max_labels = form.cleaned_data['max_labels']
-            
-            # Process labels
-            label_names = [request.POST.get(f'label_{i}') for i in range(num_labels) if request.POST.get(f'label_{i}')]
+            num_labels = form.cleaned_data.get('num_labels') or 0
+            min_labels = form.cleaned_data.get('min_labels') or 0
+            max_labels = form.cleaned_data.get('max_labels') or 0
+
+            num_labels = max(0, int(num_labels))
+            min_labels = max(0, int(min_labels))
+            max_labels = max(0, int(max_labels))
+
+            # collect label inputs from JS-driven inputs
+            label_names = []
+            for i in range(num_labels):
+                value = request.POST.get(f'label_{i}') or request.POST.get(f'label_name_{i}')
+                if value:
+                    label_names.append(value.strip())
+
+            # fallback to hidden field if label fields are not present
+            if not label_names:
+                hidden = form.cleaned_data.get('label_names')
+                if hidden:
+                    try:
+                        loaded = json.loads(hidden)
+                        if isinstance(loaded, list):
+                            label_names = [str(v).strip() for v in loaded if str(v).strip()]
+                    except json.JSONDecodeError:
+                        pass
+
+            if classification_type in [AIModel.ClassificationType.BINARY, 'binary']:
+                if len(label_names) != 2:
+                    form.add_error('num_labels', 'Binary classification requires exactly 2 labels.')
+                num_labels = 2
+                min_labels = 1
+                max_labels = 1
+            elif classification_type in [AIModel.ClassificationType.MULTI_CLASSES, 'multi_classes']:
+                if len(label_names) < 2:
+                    form.add_error('num_labels', 'Multi-class classification requires at least 2 labels.')
+                min_labels = max(min_labels, 1)
+                max_labels = max(max_labels, len(label_names))
+                num_labels = max(num_labels, len(label_names))
+            elif classification_type in [AIModel.ClassificationType.MULTI_LABELS, 'multi_labels']:
+                if len(label_names) < 1:
+                    form.add_error('num_labels', 'Multi-label classification requires at least 1 label.')
+                min_labels = max(min_labels, 1)
+                max_labels = max(max_labels, len(label_names))
+                num_labels = len(label_names)
+
+            if form.errors:
+                return render(request, 'upload_model2.html', {
+                    'form': form,
+                    'input_formset': input_formset,
+                    'output_formset': output_formset,
+                    'current_label_names': label_names,
+                })
+
             labels = {
-                "num_labels": num_labels,
-                "label_names": label_names,
-                "min_labels": min_labels,
-                "max_labels": max_labels
+                'num_labels': num_labels,
+                'label_names': label_names,
+                'min_labels': min_labels,
+                'max_labels': max_labels,
             }
-            print(labels)
-            # Process input fields
+            print('labels', labels)
+
             input_fields = [form.cleaned_data for form in input_formset]
-            input_signature = GetSignature(input_fields)  # Assuming GetSignature is defined elsewhere
-            print(input_fields)
-            print(input_signature)
+            input_signature = GetSignature(input_fields)
+            output_signature = f"Schema([TensorSpec(np.dtype(\"float32\"),(-1,{num_labels}), \"class\"),])"
 
-            # # Process output fields
-            # output_fields = [form.cleaned_data for form in output_formset]
-            # output_signature = GetSignature(output_fields)  # Assuming GetSignature is defined elsewhere
+            source_type = form.cleaned_data.get('source_type')
+            modelURI = ''
 
-            output_signature="Schema([TensorSpec(np.dtype(\"float32\"),(-1,"+str(num_labels)+"), \"class\"),])"
-
-            source_type = request.POST.get('source_type')
             if source_type == 'code':
-                code_snippet = request.POST.get('code_snippet')
+                code_snippet = form.cleaned_data.get('code_snippet', '')
                 flavorsFactory = FlavorsFactory()
                 modelURI = flavorsFactory.upload_model(flavor, name, code_snippet, input_signature, output_signature)
-                print("modelURIis",modelURI)
-            # elif model_source == 'file':
-            #     model_file = request.FILES.get('model_file')
+            elif source_type == 'file':
+                model_file = request.FILES.get('file') or request.FILES.get('model_file')
+                if model_file:
+                    filepath = os.path.join(settings.MEDIA_ROOT, model_file.name)
+                    with default_storage.open(filepath, 'wb+') as destination:
+                        for chunk in model_file.chunks():
+                            destination.write(chunk)
+                    code_s = f"model=load_model('{filepath}')"
+                    flavorsFactory = FlavorsFactory()
+                    modelURI = flavorsFactory.upload_model(flavor, name, code_s, input_signature, output_signature)
 
-                aimodel = AIModel(name=name, flavor=flavor, labels=json.dumps(labels),modelURI=modelURI,
-                              input_signature=json.dumps(input_fields), output_signature=output_signature,
-                              classification_type=classification_type)
-                aimodel.save()
-            if source_type=='file':
-                #save the file
-                 # Define the file path where the file will be saved
-                model_file = request.POST.get('file')
-                filepath = os.path.join(settings.MEDIA_ROOT, model_file.name)
-                # Save the file
-                with default_storage.open(filepath, 'wb+') as destination:
-                    for chunk in model_file.chunks():
-                        destination.write(chunk)
-                code_s="model=load_model(\""+filepath+"\")"
-                flavorsFactory = FlavorsFactory()
-                modelURI = flavorsFactory.upload_model(flavor, name, code_s, input_signature, output_signature)
-                aimodel = AIModel(name=name, flavor=flavor, labels=json.dumps(labels),modelURI=modelURI,
-                              input_signature=json.dumps(input_fields), output_signature=output_signature,
-                              classification_type=classification_type)
-                aimodel.save()
-            return Response(status=status.HTTP_200_OK)
+            aimodel = AIModel(
+                name=name,
+                flavor=flavor,
+                labels=json.dumps(labels),
+                modelURI=modelURI,
+                input_signature=json.dumps(input_fields),
+                output_signature=output_signature,
+                classification_type=classification_type
+            )
+            aimodel.save()
+
+            return redirect('upload_model')
 
 
     else:
